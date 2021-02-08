@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 
-class ditryMNISTDataset(Dataset):
+class dirtyMNISTDataset(Dataset):
 
     DATA_PATH = '../data/dirty_mnist/'
     
