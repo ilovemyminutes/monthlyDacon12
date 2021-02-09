@@ -15,7 +15,7 @@ class dirtyMNISTDataset(Dataset):
 
     DATA_PATH = "data/dirty_mnist/"
 
-    def __init__(self, mode: str, transform: list = None, data_path: str=None):
+    def __init__(self, mode: str, transform: list = None, data_path: str = None):
         """
         Args
         ---

@@ -37,7 +37,7 @@ class TestPipeline(unittest.TestCase):
         )
         train_dataloader = DataLoader(dataset=train_dataset, batch_size=self.BATCH_SIZE)
         sample = next(iter(train_dataloader))
-        X, y = sample['image'], sample['label'].float().to(self.DEVICE)
+        X, y = sample["image"], sample["label"].float().to(self.DEVICE)
 
         HEIGHT, WIDTH = X.size()[-2], X.size()[-1]
 
@@ -46,21 +46,19 @@ class TestPipeline(unittest.TestCase):
         optimizer = optim.Adam(model.parameters(), lr=self.LEARNING_RATE)
 
         y_pred = model.forward(
-            X
-            .view(self.BATCH_SIZE, self.CHANNEL_DIM, HEIGHT, WIDTH)
+            X.view(self.BATCH_SIZE, self.CHANNEL_DIM, HEIGHT, WIDTH)
             .float()
             .to(self.DEVICE)
         )
         loss = loss_function(y_pred, y)
-        
+
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-
         self.assertEqual(list(sample.keys()), ["image", "label"])
         self.assertEqual(type(sample["image"]), torch.Tensor)
-        self.assertEqual(y_pred.size(), sample['label'].size())
+        self.assertEqual(y_pred.size(), sample["label"].size())
 
 
 if __name__ == "__main__":
