@@ -79,7 +79,7 @@ def train_model(
             else:  # channel=3
                 N, C, H, W = X.size()
 
-            y_pred = model.forward(X.view(-1, C, H, W).to(device))
+            y_pred = model.forward(X.view(-1, C, H, W).float().to(device))
             loss = loss_function(y_pred, y_true)
 
             optimizer.zero_grad()
