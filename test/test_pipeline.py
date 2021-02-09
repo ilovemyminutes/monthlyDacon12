@@ -37,12 +37,12 @@ class TestPipeline(unittest.TestCase):
         )
         train_dataloader = DataLoader(dataset=train_dataset, batch_size=self.BATCH_SIZE)
         sample = next(iter(train_dataloader))
-        X, y = sample['image'], sample['label']
+        X, y = sample['image'], sample['label'].float().to(self.DEVICE)
 
         HEIGHT, WIDTH = X.size()[-2], X.size()[-1]
 
         model = VanillaCNN().to(self.DEVICE)
-        loss_function = nn.CrossEntropyLoss()
+        loss_function = nn.BCEWithLogitsLoss()
         optimizer = optim.Adam(model.parameters(), lr=self.LEARNING_RATE)
 
         y_pred = model.forward(
@@ -51,7 +51,7 @@ class TestPipeline(unittest.TestCase):
             .float()
             .to(self.DEVICE)
         )
-        loss = loss_function(y_pred, y.to(self.DEVICE))
+        loss = loss_function(y_pred, y)
         
         optimizer.zero_grad()
         loss.backward()

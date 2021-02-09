@@ -46,7 +46,7 @@ def get_data(batch_size: int = 16):
 
 def get_model(lr: float, device: str):
     model = VanillaCNN().to(device)
-    loss_function = nn.CrossEntropyLoss()
+    loss_function = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
     return model, loss_function, optimizer
 
@@ -71,7 +71,7 @@ def train_model(
 
         for batch in tqdm(train_loader):
             X = batch["image"].to(device)
-            y_true = batch["label"].to(device)
+            y_true = batch["label"].float().to(device)
 
             if len(X.size()) == 3:  # channel=1
                 N, H, W = X.size()
