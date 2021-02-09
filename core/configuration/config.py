@@ -3,6 +3,6 @@ from dataclasses import dataclass # 데이터만을 담는 객체 생성을 편�
 @dataclass
 class Config:
     device: str
-    EPOCHS: int
-    BATCH_SIZE: int
-    LEARNING_RATE: float
+    epochs: int
+    batch_size: int
+    lr: float
