@@ -15,16 +15,19 @@ class dirtyMNISTDataset(Dataset):
 
     DATA_PATH = "data/dirty_mnist/"
 
-    def __init__(self, mode: str, transform: list = None):
+    def __init__(self, mode: str, transform: list = None, data_path: str = None):
         """
         Args
         ---
         mode: str, 데이터셋 종류를 설정. 'train', 'valid', 'test'
         """
+        if data_path is None:
+            data_path = self.DATA_PATH
+
         if mode in ["train", "valid"]:
-            label_path = os.path.join(self.DATA_PATH, mode, mode + "_answer.csv")
+            label_path = os.path.join(data_path, mode, mode + "_answer.csv")
             self.labels = pd.read_csv(label_path)
-        self.img_path = os.path.join(self.DATA_PATH, mode)
+        self.img_path = os.path.join(data_path, mode)
         self.transform = transform
         return
 

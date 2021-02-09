@@ -17,16 +17,16 @@ def get_config():
     parser = argparse.ArgumentParser()
     # parser.add_argument('--model_type', default='VanillaCNN', type=str)
     parser.add_argument("--epochs", default=3, type=int)
-    parser.add_argument('--batch_size', default=16, type=int)
-    parser.add_argument('--lr', default=.001, type=float)
+    parser.add_argument("--batch_size", default=16, type=int)
+    parser.add_argument("--lr", default=0.001, type=float)
 
     args = parser.parse_args()
 
     config = Config(
         epochs=args.epochs,
         batch_size=args.batch_size,
-        lr=args.lr, 
-        device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        lr=args.lr,
+        device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
     )
     return config
 
@@ -46,7 +46,7 @@ def get_data(batch_size: int = 16):
 
 def get_model(lr: float, device: str):
     model = VanillaCNN().to(device)
-    loss_function = nn.CrossEntropyLoss()
+    loss_function = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
     return model, loss_function, optimizer
 
@@ -71,7 +71,7 @@ def train_model(
 
         for batch in tqdm(train_loader):
             X = batch["image"].to(device)
-            y_true = batch["label"].to(device)
+            y_true = batch["label"].float().to(device)
 
             if len(X.size()) == 3:  # channel=1
                 N, H, W = X.size()
@@ -96,14 +96,19 @@ def train_model(
             )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     config = get_config()
 
     train_loader, valid_loader = get_data(batch_size=config.batch_size)
     model, loss_function, optimizer = get_model(lr=config.lr, device=config.device)
 
-    train_model(model=model, loss_function=loss_function, optimizer=optimizer, 
-                train_loader=train_loader, valid_loader=valid_loader,
-                epochs=config.epochs, batch_size=config.batch_size,
-                device=config.device)
-    
+    train_model(
+        model=model,
+        loss_function=loss_function,
+        optimizer=optimizer,
+        train_loader=train_loader,
+        valid_loader=valid_loader,
+        epochs=config.epochs,
+        batch_size=config.batch_size,
+        device=config.device,
+    )
