@@ -66,6 +66,7 @@ class VanillaCNN(nn.Module):
         for layer_idx, layer in enumerate(self.layers):
             layer_name = f"{type(layer).__name__.lower()}_{layer_idx}"
             self.network.add_module(name=layer_name, module=layer)
+
         self.init_param()
 
     def init_param(self):
