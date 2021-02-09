@@ -7,14 +7,28 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
+from core.configuration.config import Config
 from core.model.cnn import VanillaCNN
 from core.evaluation.evaluation import evaluate
 from core.load.load_data import dirtyMNISTDataset
 
 
 def get_config():
-    # parser = argparse.ArgumentParser()
-    return
+    parser = argparse.ArgumentParser()
+    # parser.add_argument('--model_type', default='VanillaCNN', type=str)
+    parser.add_argument("--epochs", default=3, type=int)
+    parser.add_argument('--batch_size', default=16, type=int)
+    parser.add_argument('--lr', default=.001, type=float)
+
+    args = parser.parse_args()
+
+    config = Config(
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        lr=args.lr, 
+        device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    )
+    return config
 
 
 def get_data(batch_size: int = 16):
@@ -66,7 +80,7 @@ def train_model(
                 N, C, H, W = X.size()
 
             y_pred = model.forward(X.view(-1, C, H, W).to(device))
-            loss = loss_function(y_pred, y)
+            loss = loss_function(y_pred, y_true)
 
             optimizer.zero_grad()
             loss.backward()
@@ -77,7 +91,19 @@ def train_model(
         if ((epoch % print_every) == 0) or (epoch == (epochs - 1)):
             loss_val_avg = loss_val_sum / len(train_loader)
             accr_val = evaluate(model=model, data_iter=valid_loader, device=device)
+            print(
+                f"epoch:[{epoch+1}/{epochs}] cost:[{loss_val_avg:.3f}] test_accuracy:[{accr_val:.3f}]"
+            )
 
 
-# if __name__ == '__main__':
-#     config = get_config()
+if __name__ == '__main__':
+    config = get_config()
+
+    train_loader, valid_loader = get_data(batch_size=config.batch_size)
+    model, loss_function, optimizer = get_model(lr=config.lr, device=config.device)
+
+    train_model(model=model, loss_function=loss_function, optimizer=optimizer, 
+                train_loader=train_loader, valid_loader=valid_loader,
+                epochs=config.epochs, batch_size=config.batch_size,
+                device=config.device)
+    
