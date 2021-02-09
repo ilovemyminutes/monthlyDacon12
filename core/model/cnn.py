@@ -3,6 +3,7 @@ from torch.nn import functional as f
 
 
 class VanillaCNN(nn.Module):
+    
     def __init__(
         self,
         input_size: tuple = (1, 256, 256),
