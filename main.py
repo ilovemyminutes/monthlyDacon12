@@ -17,7 +17,7 @@ def get_config():
     parser = argparse.ArgumentParser()
     # parser.add_argument('--model_type', default='VanillaCNN', type=str)
     parser.add_argument("--epochs", default=3, type=int)
-    parser.add_argument("--batch_size", default=16, type=int)
+    parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--lr", default=0.001, type=float)
 
     args = parser.parse_args()
@@ -32,15 +32,19 @@ def get_config():
 
 
 def get_data(batch_size: int = 16):
-    print(f"Getting Data...")
+    print(f"Getting Data...", end="\t")
 
     # transform = transforms.Compose([transforms.Grayscale(), transforms.ToTensor()])
     train_dataset = dirtyMNISTDataset(mode="train", transform=None)
     valid_dataset = dirtyMNISTDataset(mode="valid", transform=None)
 
-    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size)
-    valid_loader = DataLoader(dataset=valid_dataset, batch_size=batch_size)
-
+    train_loader = DataLoader(
+        dataset=train_dataset, batch_size=batch_size, shuffle=True
+    )
+    valid_loader = DataLoader(
+        dataset=valid_dataset, batch_size=batch_size, shuffle=True
+    )
+    print("Data loaded.")
     return train_loader, valid_loader
 
 
@@ -60,12 +64,14 @@ def train_model(
     epochs: int = 3,
     batch_size: int = 16,
     device: str = None,
+    checkpoint: str = "checkpoint/",
 ):
+    print("Train start...")
     model.train()
     print_every = 1
 
     # train phase
-    for epoch in range(epochs):
+    for idx, epoch in enumerate(range(epochs)):
 
         loss_val_sum = 0
 
@@ -94,6 +100,18 @@ def train_model(
             print(
                 f"epoch:[{epoch+1}/{epochs}] cost:[{loss_val_avg:.3f}] test_accuracy:[{accr_val:.3f}]"
             )
+
+        torch.save(
+            {
+                "epoch": epoch,
+                "model_state_dict": model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+                "loss": loss_val_avg,
+            },
+            checkpoint,
+        )
+
+    print("Train finished.")
 
 
 if __name__ == "__main__":

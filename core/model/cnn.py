@@ -61,6 +61,7 @@ class VanillaCNN(nn.Module):
                 in_features=prev_hidden_dim, out_features=self.n_classes, bias=True
             )
         )
+        self.layers.append(nn.Sigmoid())
 
         self.network = nn.Sequential()
         for layer_idx, layer in enumerate(self.layers):
