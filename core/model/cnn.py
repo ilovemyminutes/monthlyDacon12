@@ -1,6 +1,22 @@
 from torch import nn, optim
 from torch.nn import functional as f
+from torchvision import models
 
+# baseline
+class ResNet50(nn.Module):
+    def __init__(self):
+        super().__init__():
+
+        self.layers = list()
+        self.layers.append(models.resnet50(pretrained=True))
+        self.layers.append(nn.Linear(in_features=1000, out_features=26))
+        self.network = nn.Sequential()
+        for idx, layer in enumerate(self.layers):
+            self.network.add_module(name=f'{type(layer).__name__.lower()}_{idx}')
+        return
+
+    def forward(self, X):
+        return self.network(X)
 
 class VanillaCNN(nn.Module):
     def __init__(

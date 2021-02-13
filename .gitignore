@@ -1,7 +1,9 @@
 # image data
 *.png
+*.pt
 data/
 raw/ 
+checkpoint/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

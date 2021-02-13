@@ -1,3 +1,4 @@
+import os
 import argparse
 from tqdm import tqdm
 
@@ -17,8 +18,8 @@ def get_config():
     parser = argparse.ArgumentParser()
     # parser.add_argument('--model_type', default='VanillaCNN', type=str)
     parser.add_argument("--epochs", default=3, type=int)
-    parser.add_argument("--batch_size", default=32, type=int)
-    parser.add_argument("--lr", default=0.001, type=float)
+    parser.add_argument("--batch_size", default=16, type=int)
+    parser.add_argument("--lr", default=1e-3, type=float)
 
     args = parser.parse_args()
 
@@ -50,7 +51,7 @@ def get_data(batch_size: int = 16):
 
 def get_model(lr: float, device: str):
     model = VanillaCNN().to(device)
-    loss_function = nn.BCEWithLogitsLoss()
+    loss_function = nn.MultiLabelSoftMarginLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
     return model, loss_function, optimizer
 
@@ -61,9 +62,9 @@ def train_model(
     optimizer,
     train_loader: DataLoader,
     valid_loader: DataLoader,
-    epochs: int = 3,
-    batch_size: int = 16,
-    device: str = None,
+    epochs: int,
+    batch_size: int,
+    device: str,
     checkpoint: str = "checkpoint/",
 ):
     print("Train start...")
@@ -76,7 +77,7 @@ def train_model(
         loss_val_sum = 0
 
         for batch in tqdm(train_loader):
-            X = batch["image"].to(device)
+            X = batch["image"].float().to(device)
             y_true = batch["label"].float().to(device)
 
             if len(X.size()) == 3:  # channel=1
@@ -101,6 +102,7 @@ def train_model(
                 f"epoch:[{epoch+1}/{epochs}] cost:[{loss_val_avg:.3f}] test_accuracy:[{accr_val:.3f}]"
             )
 
+        checkpoint_name = os.path.join(checkpoint, f'VanillaCNN_{idx}.pt')
         torch.save(
             {
                 "epoch": epoch,
@@ -108,15 +110,18 @@ def train_model(
                 "optimizer_state_dict": optimizer.state_dict(),
                 "loss": loss_val_avg,
             },
-            checkpoint,
+            checkpoint_name,
         )
 
     print("Train finished.")
 
 
-if __name__ == "__main__":
-    config = get_config()
 
+if __name__ == "__main__":
+    print('Getting arguments...', end='\t')
+    config = get_config()
+    print('finished.')
+    
     train_loader, valid_loader = get_data(batch_size=config.batch_size)
     model, loss_function, optimizer = get_model(lr=config.lr, device=config.device)
 
